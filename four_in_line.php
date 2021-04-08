@@ -4,8 +4,16 @@ $page = 'four_in_line';
 
 include "DataManager.php";
 $manager = new DataManager('four_in_line_db.json');
+$winner = new DataManager('four_in_line_winner.json');
 include "Validator.php";
-$validator = new Validator('four_in_line_db.json');
+$validator = new Validator('four_in_line_db.json', 3);
+
+$alert = '';
+
+if ($winner->get(0, 'winner') !== '') {
+    $manager->deleteAll();
+    $winner->deleteAll();
+}
 
 if (
     array_key_exists('r', $_GET) &&
@@ -26,7 +34,11 @@ if (
             $current_value = 'o';
         }
         $manager->save($r, $c, $current_value);
-        $validator->validate($r, $c, $current_value);
+
+        $alert = $validator->validate($r, $c, $current_value);
+        if ($alert) {
+            $winner->save(0, 'winner', $current_value);
+        }
     }
 } elseif (
     array_key_exists('restart', $_GET) &&
@@ -59,7 +71,12 @@ if (
 </style>
 
 <div class="container">
-    <?php include "navigation.php"; ?>
+    <?php include "navigation.php";
+
+    if ($alert) {
+        echo "<div class='alert alert-success'>$alert</div>";
+    }
+    ?>
     <div class="four_in_line">
         <?php
         for ($r = 1; $r <= 10; $r++) {
