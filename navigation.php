@@ -17,6 +17,9 @@
                 <li class="nav-item">
                     <a class="nav-link <?= ($page === '42_link') ? "active" : ''; ?>" href="42_link.php">#4 42_link</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($page === 'array_fill') ? "active" : ''; ?>" href="array_fill.php">#5 array_fill</a>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Language

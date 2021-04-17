@@ -1,8 +1,9 @@
 <?php
 include "head.php";
 $page = '42_link';
-$link_count = 42;
 
+include "DataManager.php";
+$manager = new DataManager('42_data.json');
 
 ?>
 
@@ -18,42 +19,66 @@ $link_count = 42;
     <form action="">
         <div class="mb-3">
             <label for="link-amount" class="form-label">Amount of links</label>
-            <input id="link-amount" type="number" name="amount" class="form-control">
+            <input id="link-amount" name="amount" type="number" class="form-control">
         </div>
         <div class="mb-3">
-            <button type="submit" class="btn btn-info">Submit</button>
+            <button type="submit" class="btn btn-info">submit</button>
         </div>
     </form>
 
     <?php
-    if (
-        array_key_exists('amount', $_GET) &&
-        is_numeric($_GET['amount']) &&
-        $_GET['amount'] != ''
-    ) {
-        $link_count = $_GET['amount'];
+    if (array_key_exists('amount', $_GET)) {
+        $amount = (int) $_GET['amount'];
+    } else {
+        $amount = $manager->get('amount', 0);
+    }
+    if ($amount == '') {
+        $amount = 42;
     }
 
-    for ($i = 1; $i <= $link_count; $i++) {
-        if ($i % 6 == 0) {
-            echo "<a href='?amount=$link_count&i=$i' class='btn btn-danger'>" . $i . "</a>";
-        } else {
-            echo "<a href='?amount=$link_count&i=$i' class='btn btn-dark'>" . $i . "</a>";
+    if (array_key_exists('next', $_GET)) {
+        $amount++;
+    }
+    if (array_key_exists('prev', $_GET)) {
+        $amount--;
+    }
+    $manager->save('amount', 0, $amount);
+
+    $output = '';
+    if (array_key_exists('id', $_GET)) {
+        $id = (int) $_GET['id'];
+
+        if ($id % 3 === 0) {
+            $output .= "ID: " . $id;
+
+
+            //START 5 uzd
+            $link_value = $manager->get('links', $id);
+
+            if ($link_value === '') {
+                $link_value = $id;
+            }
+            $manager->save('links', $id, ++$link_value);
+
+            //END 5 uzd
         }
     }
 
-    if (
-        array_key_exists('i', $_GET) &&
-        is_numeric($_GET['i']) &&
-        $_GET['i'] != ''
-    ) {
-        $link =  $_GET['i'];
-        if ($link % 3 == 0) {
-            echo "Jūs uzklikšķinājāt uz $link";
+
+
+
+    for ($i = 1; $i <= $amount; $i++) {
+        $value = $manager->get('links', $i);
+        if ($value === '') {
+            $value = $i;
         }
+        $class_name = ($i % 6 === 0) ? 'btn-danger' : 'btn-dark';
+        echo "<a href='?id=$i' class='btn $class_name'>$value</a>";
     }
 
-
+    echo "<a href='?next' class='btn btn-success'>+</a>";
+    echo "<a href='?prev' class='btn btn-success'>-</a>";
+    echo $output;
 
     ?>
 </div>
